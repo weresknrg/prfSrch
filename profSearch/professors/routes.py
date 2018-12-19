@@ -33,4 +33,7 @@ def prof_schedule(id):
                                        'title': lssn[7],
                                        'groups': [gr.id for gr in lssn[0].groups],
                                        'subject_type': lssn[8]})
-    return render_template('prof_schedule.html', name=name, arg=json, title=("%s %c.%c.") % (name[0], name[1][0],name[2][0]) )
+    return render_template('prof_schedule.html',
+                           name=name,
+                           arg=json,
+                           title=("%s %c.%c.") % (name[0], name[1][0],name[2][0]) )
