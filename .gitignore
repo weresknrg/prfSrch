@@ -1,0 +1,6 @@
+.idea/
+*.py[cdo]
+/**/__pycache__
+/**/venv/
+fill_DB.py
+obj/

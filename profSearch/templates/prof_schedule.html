@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>{{ name[0] }} {{ name[1] }} {{ name[2] }}</h1>
+    {% for weekType,week in arg.items() %}
+    <div class="content-section">
+
+        <h3>{{ weekType }}</h3>
+            <div class="table-responsive-md">
+                {% for day, schedule in week.items()%}
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">{{ day }}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for lesson in schedule %}
+                            <tr>
+                                <td scope="row">{{ lesson['title'] }}</td>
+                                <td>{{ lesson['sTime'] }} - {{ lesson['eTime'] }}</td>
+                                <td>{{ lesson['place'] }}</td>
+                                <td>[{{ ' '.join(lesson['groups']) }}]</td>
+                                <td>{{ lesson['subject_type'] }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endfor %}
+            </div>
+
+
+    </div>
+{% endfor %}
+
+{% endblock content %}
