@@ -1,6 +1,5 @@
-from profSearch import create_app
+from profSearch import app
 
-app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)

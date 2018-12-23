@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
     <div class="content-section">
-    <h1>{{ name }}</h1>
+    <h1>Кабинет {{ place[0] }} ({{ place[1] }})</h1>
     </div>
     {% for weekType,week in arg.items() %}
     <div class="content-section">
@@ -19,17 +19,16 @@
                         {% for lesson in schedule %}
                             <tr>
                                 <td scope="row">{{ lesson['title'] }}</td>
-                                <td>{{ lesson['sTime'] }} - {{ lesson['eTime'] }}</td>
                                 <td>
-                                    {%  if 'N/A' == lesson['campus'].name  %}
-                                        N/A
-                                    {%  else %}
-                                        <a href="{{ url_for('classrooms.classroom_schedule',
-                                                campus_id=lesson['campus'].id,
-                                                classroom_id=lesson['classroom'].id) }}">
-                                        {{ "%s %s" % (lesson['classroom'].place, lesson['campus'].name) }}
-                                    </a></td>
+                                    {% if lesson['prof'].lName != 'N/A' %}
+                                    <a href="{{ url_for('professors.prof_schedule', id=lesson['prof'].id) }}">
+                                        {{ "%s %c.%c."% (lesson['prof'].lName, lesson['prof'].fName[0], lesson['prof'].mName[0]) }}
+                                    </a>
+                                    {% else %}
+                                    N/A
                                     {% endif %}
+                                </td>
+                                <td>{{ lesson['sTime'] }} - {{ lesson['eTime'] }}</td>
                                 <td>[{{ ' '.join(lesson['groups']) }}]</td>
                                 <td>{{ lesson['subject_type'] }}</td>
                             </tr>
@@ -42,5 +41,4 @@
 
     </div>
 {% endfor %}
-
 {% endblock content %}

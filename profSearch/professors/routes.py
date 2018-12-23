@@ -8,32 +8,32 @@ professors = Blueprint('professors', __name__)
 
 @professors.route("/professors/<int:id>")
 def prof_schedule(id):
-    name = db.session.query(Professor.lName,Professor.fName,Professor.mName).filter(Professor.id == id).first()
+    name = db.session.query(Professor).filter(Professor.id == id).first()
     if not name:
         flash("Error")
         return redirect(url_for('main.home'))
-    p = db.session.query(Lesson,
-                         func.date_format(Lesson.tStart, '%H:%i'), func.DATE_FORMAT(Lesson.tEnd, '%H:%i'),
-                         Week_type.title, Weekday.name, Lesson.subGroup, Classroom.place, Subject.title,
-                         Subject_type.name,Campus.name) \
-        .options(db.subqueryload(Lesson.groups).load_only('id')) \
-        .join(Classroom, Subject, Weekday, Week_type, Subject_type, Campus) \
-        .order_by(Lesson.isEvenWeek, Lesson.dayOfWeek, Lesson.tStart) \
+    p = db.session.query(Lesson, Week_type, Weekday, Subject, Subject_type, Classroom, Campus) \
+        .join(Week_type, Weekday, Subject, Subject_type, Classroom, Campus) \
+        .options(db.joinedload(Lesson.groups).load_only('title')) \
         .filter(Lesson.prof_id == id) \
+        .order_by(Lesson.isEvenWeek, Lesson.dayOfWeek, Lesson.tStart) \
+        .with_entities(Lesson, Week_type.title, Weekday.name, Classroom, Subject.title, Subject_type.name,
+                       Campus) \
         .all()
     json = {}
 
     for lssn in p:
-        json.setdefault(lssn[3], {})
-        json[lssn[3]].setdefault(lssn[4], [])
-        json[lssn[3]][lssn[4]].append({'place': "%s %s" % (lssn[6],lssn[9]),
-                                       'sTime': lssn[1],
-                                       'eTime': lssn[2],
-                                       'subGroup': lssn[5],
-                                       'title': lssn[7],
-                                       'groups': [gr.id for gr in lssn[0].groups],
-                                       'subject_type': lssn[8]})
+        json.setdefault(lssn[1], {})
+        json[lssn[1]].setdefault(lssn[2], [])
+        json[lssn[1]][lssn[2]].append({'campus': lssn[6],
+                                       'classroom':lssn[3],
+                                       'sTime': lssn[0].tStart.strftime('%H:%M'),
+                                       'eTime': lssn[0].tEnd.strftime('%H:%M'),
+                                       'subGroup': lssn[0].subGroup,
+                                       'title': lssn[4],
+                                       'groups': [gr.title for gr in lssn[0].groups],
+                                       'subject_type': lssn[5]})
     return render_template('prof_schedule.html',
-                           name=name,
+                           name="%s %s %s" % (name.lName, name.fName,name.mName),
                            arg=json,
-                           title=("%s %c.%c.") % (name[0], name[1][0],name[2][0]) )
+                           title=("%s %c.%c.") % (name.lName, name.fName[0],name.mName[0]) )
