@@ -3,7 +3,7 @@ from flask import render_template,request,redirect,flash, url_for
 from profSearch.models import *
 from profSearch import db
 
-main = Blueprint('main', __name__)
+main = Blueprint('main', __name__, template_folder='templates')
 
 @main.route("/")
 @main.route("/home/", methods=['GET', 'POST'])

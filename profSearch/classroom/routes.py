@@ -2,7 +2,7 @@ from flask import Blueprint, flash, redirect, url_for, render_template
 from sqlalchemy import func, and_
 from profSearch.models import *
 
-classrooms = Blueprint('classrooms', __name__)
+classrooms = Blueprint('classrooms', __name__, template_folder='templates')
 
 @classrooms.route('/campus/')
 def campus_list():
@@ -35,10 +35,14 @@ def classroom_schedule(campus_id, classroom_id):
         json.setdefault(lssn[1], {})
         json[lssn[1]].setdefault(lssn[2], [])
         json[lssn[1]][lssn[2]].append({'prof': lssn[5],
-                                       'sTime': lssn[0].tStart.strftime('%H:%M'),
-                                       'eTime': lssn[0].tEnd.strftime('%H:%M'),
                                        'subGroup': lssn[0].subGroup,
                                        'title': lssn[3],
                                        'groups': [gr.title for gr in lssn[0].groups],
                                        'subject_type': lssn[4]})
+        if lssn[0].tStart  or lssn[0].tEnd:
+            json[lssn[1]][lssn[2]][-1]['sTime'] = lssn[0].tStart.strftime('%H:%M')
+            json[lssn[1]][lssn[2]][-1]['eTime'] = lssn[0].tEnd.strftime('%H:%M')
+        else:
+            json[lssn[1]][lssn[2]][-1]['sTime'] = json[lssn[1]][lssn[2]][-1]['eTime'] = ''
+
     return render_template('room_schedule.html', arg=json, place=place)

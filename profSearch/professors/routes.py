@@ -4,7 +4,7 @@ from profSearch.models import *
 from flask import render_template
 from sqlalchemy import func
 
-professors = Blueprint('professors', __name__)
+professors = Blueprint('professors', __name__, template_folder='templates')
 
 @professors.route("/professors/<int:id>")
 def prof_schedule(id):
