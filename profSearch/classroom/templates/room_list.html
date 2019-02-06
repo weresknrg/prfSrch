@@ -3,7 +3,7 @@
     <ul>
     {% for classroom in classes %}
         <li>
-            <a href="{{ url_for('classrooms.classroom_schedule', campus_id=classroom.campus_id, classroom_id=classroom.id) }}">{{ classroom.place }}</a>
+            <a href="{{ url_for('classrooms.classroom_schedule', classroom_id=classroom.id) }}">{{ classroom.place }}</a>
         </li>
     {% endfor %}
     </ul>

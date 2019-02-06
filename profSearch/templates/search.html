@@ -1,0 +1,120 @@
+{% block content %}
+<style>
+        .autocomplete-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .autocomplete-content a:hover {
+            background-color: #ddd;
+        }
+
+        .autocomplete {
+            position: relative;
+            flex: 1;
+        }
+
+        .autocomplete-content {
+            display: none;
+            position: absolute;
+            width: 100%;
+            background-color: #f1f1f1;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            max-height: 300px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+
+        .show {
+            display: block;
+        }
+    </style>
+
+<div class="content-section">
+    <div class="input-group">
+        <div>
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-secondary active">
+                    <input type="radio" name="options" id="profSearch" autocomplete="off" checked> Препод
+                </label>
+                <label class="btn btn-secondary">
+                    <input type="radio" name="options" id="classroomSearch" autocomplete="off"> Кабинет
+                </label>
+            </div>
+        </div>
+
+        <div class="autocomplete">
+            <input type="text" class="form-control" id="searchForm" placeholder="" aria-label=""
+                   aria-describedby="basic-addon1">
+            <div id="autocomplete-items" class="autocomplete-content">
+                <!--Сюда жабаскрепт добавляет ссылки -->
+            </div>
+        </div>
+    </div>
+</div>
+    <script>
+        window.addEventListener("load", function () {
+            let name_input = document.getElementById('searchForm');
+            name_input.addEventListener("keyup", function (event) {
+                hinter(event)
+            });
+            window.hinterXHR = new XMLHttpRequest();
+        });
+
+        window.addEventListener('click', function (event) {
+            let specifiedElement = document.getElementById('searchForm');
+            let isClickInside = specifiedElement.contains(event.target);
+            let dropdown = document.getElementById("autocomplete-items");
+            if (dropdown.classList.contains('show') && !isClickInside) {
+                dropdown.classList.remove('show');
+            }
+            if (isClickInside && !dropdown.classList.contains('show')) {
+                dropdown.classList.add('show');
+            }
+        });
+        // Autocomplete
+        function hinter(event) {
+            let input = event.target;
+            let suggestionList = document.getElementById("autocomplete-items");
+            let min_chars = 2;
+
+            if (input.value.length < min_chars) {
+                return;
+            } else {
+                window.hinterXHR.abort();
+                window.hinterXHR.onreadystatechange = function () {
+                    if (this.readyState === 4 && this.status === 200) {
+                        let response = JSON.parse(this.responseText);
+                        suggestionList.innerHTML = "";
+                        suggestionList.classList.add('show');
+                        response.forEach(function (item) {
+                            let option = document.createElement('a');
+                            if (document.getElementById('profSearch').checked === true) {
+                                option.innerHTML += item['lName'] + " " + item['fName'] + " " + item['mName'];
+                            } else {
+                                option.innerHTML += item['place'] + " (" + item['campus'] + ")";
+                            }
+                            option.href = item['URI'];
+                            suggestionList.appendChild(option);
+
+                        });
+                    }
+                };
+
+                if (document.getElementById('profSearch').checked === true) {
+                    window.hinterXHR.open("POST", "/api/professors/search", true);
+                    window.hinterXHR.setRequestHeader("Content-Type", "application/json");
+                    window.hinterXHR.send(JSON.stringify({"last_name": input.value, "inner": true}));
+                } else {
+                    window.hinterXHR.open("POST", "/api/classroom/search", true);
+                    window.hinterXHR.setRequestHeader("Content-Type", "application/json");
+                    window.hinterXHR.send(JSON.stringify({"classroom": input.value, "inner": true}));
+                }
+            }
+        }
+
+    </script>
+{% endblock %}

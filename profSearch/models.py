@@ -29,6 +29,8 @@ class Subject(db.Model):
     professors = db.relationship("Professor", secondary=subject_association,
                                  backref='subjects')
     lessons = db.relationship("Lesson", backref="subject", lazy='dynamic')
+    dateFrom = db.Column(db.DateTime, nullable=True)
+    dateTo = db.Column(db.DateTime, nullable=True)
 
     def __repr__(self):
         return f"Subject('{self.title}')"

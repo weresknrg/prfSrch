@@ -1,17 +1,15 @@
 from flask import Blueprint, Markup
 from flask import render_template,request,redirect,flash, url_for
-from profSearch.models import *
-from profSearch import db
+from profSearch.db_access import *
 
 main = Blueprint('main', __name__, template_folder='templates')
 
 @main.route("/")
 @main.route("/home/", methods=['GET', 'POST'])
 def home():
-
     q = request.args.get('q', None)
     if q:
-        profs = db.session.query(Professor).filter(Professor.lName.ilike('%' + q + '%')).all()
+        profs = search_professor(q)
         if not profs:
             flash('No results','error')
             return redirect(url_for('main.home'))
